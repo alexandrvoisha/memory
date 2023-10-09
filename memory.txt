@@ -1,0 +1,452 @@
+index.js
+
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import './index.css';
+import App from './App';
+
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>
+);
+
+
+App.js
+import './App.css';
+
+function App() {
+  return (
+    <div className="App">
+      <h1>MyMemory Game</h1>
+      <button>New Game</button>
+    </div>
+  );
+}
+
+export default App;
+
+
+
+index.css
+@import url('https://fonts.googleapis.com/css2?family=Raleway:wght@100;200;300;400;500;600;700;800&display=swap');
+
+body {
+  margin: 0;
+  font-family: Raleway, sans-serif;
+  fomt-size: 1em;
+  text-align: center;
+  background: #1b1523;
+  color:white;
+}
+
+
+App.css
+.App {
+  max-width: 860px;
+  margin:  40px auto;
+}
+
+button {
+  background: none;
+  border: 2px solid white;
+  padding: 6px 12px;
+  border-radius: 4px;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  font-size: 1em;
+}
+
+button:hover {
+  background: #c23866;
+  color: white;
+}
+
+Добавим в App.js:
+const cardImages =[
+  {"src": "/img/helmet-1.png"},
+  {"src": "/img/potion-1.png"},
+  {"src": "/img/ring-1.png"},
+  {"src": "/img/scroll-1.png"},
+  {"src": "/img/shield-1.png"},
+  {"src": "/img/sword-1.png"},
+]
+Изображения для карточек в массиве
+
+Там же выше return:
+const  shuffleCards = () => {
+  const shuffledCards = [...cardImages, ...cardImages]
+    .sort(() => Math.random() - 0.5)
+    .map((card) =>({...card, id: Math.random()}))
+ }
+
+ Метод sort у джаваскриптовых массивов в качестве аргумента принимает
+  функцию-компаратор. Эта функция должна принимать два элемента массива
+   и возвращать число. Если число положительное, алгоритм сортировки 
+   считает, что первый элемент больше; если отрицательное — значит,
+   первый элемент меньше; если же компаратор возвращает нуль, то в рамках
+   данной сортировки элементы как бы равны. Если под видом компаратора
+    передать функцию, которая будет возвращать положительное или
+     отрицательное число случайным образом, то массив окажется отсортирован
+     в «случайном» порядке.
+
+
+запишем созданный массив карт и кол-во ходов  в стэйты:
+function App() {
+
+const [cards, setCards] = useState([])
+const [turns, setTurns] = useState(0)
+
+ const  shuffleCards = () => {
+  const shuffledCards = [...cardImages, ...cardImages]
+    .sort(() => Math.random() - 0.5)
+    .map((card) =>({...card, id: Math.random()}))
+  
+  setCards(shuffledCards)
+  setTurns(0)
+ }
+
+ Перемешивать карты и сбрасывать кол-во ходов будем при каждом нажатии 
+ кнопки new Game
+ <button onClick={shuffleCards}>New Game</button>
+
+ ниже функции console.log(cards,turns) и проверка в консоли
+ 
+
+добавим отображение картинки и картинку фон
+return (
+    <div className="App">
+      <h1>MyMemory Game</h1>
+      <button onClick={shuffleCards}>New Game</button>
+      <div className="card-grid">
+        {
+          cards.map(card => (
+            <div className='card' key={card.id}>
+              <div>
+                <img className="front" src={card.src}/>
+                <img className ="back" src="/img/cover.png"/>
+              </div>
+            </div>
+          ))
+        }
+      </div>
+    </div>
+  );
+
+затем в App.css:
+.card-grid{
+  margin-top: 40px;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+  grid-gap: 20px;
+}
+
+Создадим файлы для компонента карты:
+SingleCard.js и SingleCard.css
+переносим разметку в новый компонент
+Итоговые файлы к этому этапу:
+
+--------------SingleCard.css-----------------
+
+.card {
+    position: relative;
+}
+
+.card img {
+    width: 100%;
+    display: block;
+    border:2px solid white;
+    border-radius: 6px;
+}
+
+
+---------------SingleCard.js-------------------
+import './SingleCard.css'
+
+function SingleCard(props){
+
+    return(
+        <div className='card'>
+              <div>
+                <img className="front" src={props.card.src}/>
+                <img className ="back" src="/img/cover.png"/>
+              </div>
+            </div>
+    )
+}
+export default SingleCard;
+
+--------------------App.css-------------------------
+.App {
+  max-width: 860px;
+  margin:  40px auto;
+}
+
+button {
+  background: none;
+  border: 2px solid white;
+  padding: 6px 12px;
+  border-radius: 4px;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  font-size: 1em;
+}
+
+button:hover {
+  background: #c23866;
+  color: white;
+}
+.card-grid{
+  margin-top: 40px;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+  grid-gap: 20px;
+}
+
+
+-------------------App.js-----------------------
+
+import { useState } from 'react';
+import './App.css';
+import SingleCard from "./SingleCard";
+const cardImages =[
+  {"src": "/img/helmet-1.png"},
+  {"src": "/img/potion-1.png"},
+  {"src": "/img/ring-1.png"},
+  {"src": "/img/scroll-1.png"},
+  {"src": "/img/shield-1.png"},
+  {"src": "/img/sword-1.png"},
+]
+
+function App() {
+
+const [cards, setCards] = useState([])
+const [turns, setTurns] = useState(0)
+
+ const  shuffleCards = () => {
+  const shuffledCards = [...cardImages, ...cardImages]
+    .sort(() => Math.random() - 0.5)
+    .map((card) =>({...card, id: Math.random()}))
+  
+  setCards(shuffledCards)
+  setTurns(0)
+ }
+ console.log(cards,turns)
+
+  return (
+    <div className="App">
+      <h1>MyMemory Game</h1>
+      <button onClick={shuffleCards}>New Game</button>
+      <div className="card-grid">
+        {
+          cards.map(card => (
+            <SingleCard key={card.id} card={card}/>
+          ))
+        }
+      </div>
+    </div>
+  );
+}
+
+export default App;
+
+
+Выбор карт
+В App.js добавим два стейта - для первой и второй выбранных карт
+const [choiseOne, setChoiceOne] = useState(null)
+const [choiseTwo, setChoiceTwo] = useState(null)
+
+В файле SingleCard.js добавим onClick для изображения с рубашкой
+<img 
+  className ="back"
+  src="/img/cover.png" 
+  onClick={handleClick}
+/>
+
+Выше return создаем функцию handleClick
+const handleClick = () =>{
+
+}
+а в файле App.js сделаем функцию handleChoice
+
+const handleChoice =(card) =>{
+  console.log(card)
+}
+и передадим ее как prop  в компонент SingleCard
+
+          <SingleCard 
+            key={card.id} 
+            card={card}
+            handleChoice={handleChoice}
+          />
+
+function SingleCard(props){
+
+  const handleClick = () =>{
+    props.handleChoice(props.card)
+  }
+
+    return(
+        <div className='card'>
+              <div>
+                <img className="front" src={props.card.src}/>
+                <img 
+                  className ="back"
+                  src="/img/cover.png" 
+                  onClick={handleClick}
+                />
+              </div>
+            </div>
+    )
+}
+export default SingleCard;
+
+сохраняем выбранную карту в соответствующий стейт
+const handleChoice = (card) =>{
+    choiseOne ? setChoiceTwo(card):setChoiceOne(card)
+ }
+
+
+
+ Сравнение карт
+
+После того как выбраны карты нужно проверить одинаковые ли они.
+Карты будут одинаковыми если совпадают их поля "src":
+Компоненты реакт занимаются рендерингом и отслеживанием стейтов,
+поэтому операция сравнения карт для них будет "внешней"
+
+Для реализации этого функционала служит хук useEffect
+Его нужно расположить в компоненте, в нашем случае App.js
+Хук принимает функцию и массив параметров. Функция реализует нужный функционал,
+и запускается либо однократно, либо каждый раз когда меняется 
+любой из переданных параметров. 
+
+ useEffect(() => {
+  
+ },[choiseOne, choiseTwo])
+
+Нам нужно получать информацию о том совпадают ли выбранные карты ,
+после чего сбрасывать ход
+
+if (choiseOne && choiseTwo){
+      if (choiseOne.src === choiseTwo.src){
+        console.log("Карты совпадают");
+        resetTurn()
+      }
+      else {
+        console.log("карты не совпадают")
+        resetTurn()
+      }
+  }
+
+  const resetTurn = () => {
+  setChoiceOne(null)
+  setChoiceTwo(null)
+  setTurns(prevTurns => prevTurns + 1) обр. внимание
+ }
+
+
+ Добавим свойство matched в массив 
+ const cardImages =[
+  {"src": "/img/helmet-1.png", matched:false},
+  {"src": "/img/potion-1.png", matched:false},
+  {"src": "/img/ring-1.png", matched:false},
+  {"src": "/img/scroll-1.png", matched:false},
+  {"src": "/img/shield-1.png", matched:false},
+  {"src": "/img/sword-1.png", matched:false},
+] 
+и перейдем в хук useEffect
+
+ useEffect(() => {
+  if (choiseOne && choiseTwo){
+      if (choiseOne.src === choiseTwo.src){
+        setCards(prevCards =>{
+          return prevCards.map(card =>{
+            if(card.src === choiseOne.src){
+              return {...card, matched:true}
+            }
+            else {
+              return card
+            }
+          })
+        })
+          
+        
+        resetTurn()
+      }
+      else {
+       
+        resetTurn()
+      }
+  }
+ },[choiseOne, choiseTwo])
+
+ console.log(cards)
+
+ Переворот карт
+Добавим в тег SingleCard свойство flipped:
+flipped={card === choiseOne || card === choiseTwo || card.matched}
+
+ перейдем в файл SingleCard.js
+ и добавим назначение класса по условию
+ <div className='card'>
+              <div className={props.flipped ? "flipped" : ""}>
+                <img className="front" src={props.card.src}/>
+                <img 
+                  className ="back"
+                  src="/img/cover.png" 
+                  onClick={handleClick}
+                />
+              </div>
+            </div>
+
+после переходим в файл SingleCard.css
+и добавляем
+
+.card .front {
+    transform: rotateY(90deg);
+    position: absolute;
+}
+
+.flipped .front {
+    transform: rotateY(0deg);
+}
+
+после в App.js, в хуке, где вызывается resetTurn если карты не совпали
+  resetTurn()
+      }
+      else {
+       
+        setTimeout(()=>resetTurn(),1000)
+      }
+
+
+---------------- Продолжение 2 -------------------------
+
+анимация переворота карты
+В SingleCard.css
+
+.card .front {
+    transform: rotateY(90deg);
+    position: absolute;
+    transition: all ease-in 0.2s;
+
+}
+
+.flipped .front {
+    transform: rotateY(0deg);
+    transition-delay:  0.2s;
+}
+.card .back {
+    transition: all ease-in 0.2s;
+    transition-delay: 0.2s;
+}
+
+.flipped .back {
+    transform: rotateY(90deg);
+    transition-delay: 0s;
+}
